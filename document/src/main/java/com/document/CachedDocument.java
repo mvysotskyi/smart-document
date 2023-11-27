@@ -50,16 +50,17 @@ public class CachedDocument implements Document {
 
     private String getIfAlreadyExists() {
         String sql = "SELECT text FROM documents WHERE path = ?";
-        String result = null;
         try (Connection conn = this.connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, path);
             ResultSet rs = pstmt.executeQuery();
-            result = rs.getString("text");
+            if (rs.next()) {
+                return rs.getString("text");
+            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return result;
+        return null;
     }
 
     public void cacheDocument(String text) {
